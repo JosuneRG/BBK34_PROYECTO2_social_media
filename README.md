@@ -1,5 +1,4 @@
 # BBK34_PROYECTO2_social_media
-# 🧑‍🤝‍🧑 SocialNet - API REST para Red Social
 
 <!-- Bienvenido a **SocialNet**, una API RESTful creada con **Node.js + Express + MongoDB/Mongoose**, que permite gestionar usuarios, publicaciones, likes y comentarios como parte de una red social moderna.
 

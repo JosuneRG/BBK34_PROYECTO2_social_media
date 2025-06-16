@@ -1,0 +1,23 @@
+version: '3.5'
+
+services:
+  api:
+    container_name: api
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/root/src
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    tty: true
+
+  db:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: josunerg94
+      MONGO_INITDB_ROOT_PASSWORD: dSh2epVk1Hnaou4S
+      MONGO_INITDB_DATABASE: tiendita
