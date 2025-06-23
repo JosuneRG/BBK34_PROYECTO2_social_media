@@ -1,30 +1,24 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/Users");
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-const auth = async (req, res, next) => {
-  try 
-  {
-        // 1. Obtener el token del header
-        const token = req.headers.authorization?.split(" ")[1];
+const auth = (req, res, next) => {
+    const authHeader = req.headers.authorization;
 
-        // 2. Si no hay token, rechaza la petición
-        if (!token) {
-        return res.status(401).send({ message: "Token no proporcionado" });
-        }
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ message: 'No token proporcionado' });
+    }
 
-        // 3. Verifica el token con la clave secreta
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const token = authHeader.split(' ')[1];
 
-        // 4. Busca el usuario del token en la base de datos (sin la contraseña)
-        req.user = await User.findById(decoded.id).select("-password");
-
-        // 5. Pasa al siguiente middleware o controlador
-        next();
-  } 
-  catch (err) 
-  {
-        res.status(401).send({ message: "Token inválido o expirado" });
-  }
+    try 
+    {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = { id: decoded._id }; // <- clave corregida
+      next();
+    } 
+    catch (err) {
+      return res.status(401).json({ message: 'Token inválido' });
+    }
 };
 
 module.exports = auth;
