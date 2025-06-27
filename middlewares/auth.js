@@ -1,24 +1,29 @@
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const User = require('../models/Users');
 
-const auth = (req, res, next) => {
-    const authHeader = req.headers.authorization;
+const auth = async (req, res, next) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'No token proporcionado' });
+    if (!token) {
+      return res.status(401).send({ message: 'Token no proporcionado' });
     }
 
-    const token = authHeader.split(' ')[1];
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
 
-    try 
-    {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = { id: decoded._id }; // <- clave corregida
-      next();
-    } 
-    catch (err) {
-      return res.status(401).json({ message: 'Token inválido' });
+    const user = await User.findOne({ _id: payload._id }); // Puedes validar también si el token está en una lista si usas token rotation
+
+    if (!user) {
+      return res.status(401).send({ message: 'No estás autorizado' });
     }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ message: 'Ha habido un problema con el token' });
+  }
 };
 
 module.exports = auth;
